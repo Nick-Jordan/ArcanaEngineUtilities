@@ -1,0 +1,3 @@
+texture_diffuse baseColor
+$mat.refracti roughness
+$mat.opacity metallic
