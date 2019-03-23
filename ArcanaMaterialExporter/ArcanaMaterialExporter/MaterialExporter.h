@@ -4,6 +4,12 @@
 #include <vector>
 #include <map>
 
+struct Material
+{
+	std::string name;
+	std::vector<std::pair<std::string, std::string>> textures;
+};
+
 class MaterialExporter
 {
 public:
@@ -12,19 +18,17 @@ public:
 
 	~MaterialExporter();
 
-	void run(const char* name, const char* outFile, const char* materialDir, const char* materialSpec);
+	void run(std::string name, std::string outFile, std::string materialDir, std::string materialSpec);
 
 private:
+
+	Material loadMaterial(std::string path);
 
 	void cleanup();
 
 private:
 
-	const char* _textureType;
-	const char* _separator;
-
-	std::map<std::string, std::string> _prefixes;
-	std::map<std::string, std::string> _suffixes;
+	std::map<std::string, std::string> _types;
 };
 
 #endif // !MATERIAL_EXPORTER

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <material_specification>
 
-	<texture_type>png</texture_type>
-	<separator>_</separator>
-	<suffix attribute="baseColor">baseColor</suffix>
-	<suffix attribute="metallic">metallic</suffix>
-	<suffix attribute="roughness">roughness</suffix>
-	<suffix attribute="normals">normals</suffix>
-	<suffix attribute="ao">ao</suffix>
+	<type attribute="baseColor">baseColor</type>
+	<type attribute="metallic">metallic</type>
+	<type attribute="roughness">roughness</type>
+	<type attribute="normals">normals</type>
+	<type attribute="ao">ao</type>
+	<type attribute="height">height</type>
 	
 </material_specification>
