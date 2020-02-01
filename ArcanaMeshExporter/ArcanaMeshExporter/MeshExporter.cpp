@@ -87,22 +87,6 @@ AI_MATKEY_TWOSIDED "$mat.twosided",0,0
  AI_MATKEY_COLOR_REFLECTIVE "$clr.reflective",0,0
  AI_MATKEY_GLOBAL_BACKGROUND_IMAGE "?bg.global",0,0*/
 
-	std::map<std::string, std::string> materialProperties;
-
-	std::ifstream file(materialSpec);
-	std::string str;
-	while (std::getline(file, str))
-	{
-		std::vector<std::string> strs;
-		boost::split(strs, str, boost::is_any_of("\t "));
-
-		if (strs.size() == 2)
-		{
-			materialProperties.emplace(strs[0], strs[1]);
-		}
-	}
-
-
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(inFile, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
@@ -144,8 +128,34 @@ AI_MATKEY_TWOSIDED "$mat.twosided",0,0
 	std::ofstream outData(outFile, std::ios::binary);
 	int numMeshes = _meshes.size();
 	outData.write(reinterpret_cast<const char*>(&numMeshes), sizeof(numMeshes));
-	int numMaterials = materials.size();
+	int numMaterials = writeMaterials ? materials.size() : 0;
 	outData.write(reinterpret_cast<const char*>(&numMaterials), sizeof(numMaterials));
+
+	std::vector<std::map<std::string, std::string>> materialProperties(numMaterials);
+
+	int mat = 0;
+	std::ifstream file(materialSpec);
+	while (mat < numMaterials)
+	{
+		std::string str;
+		while (std::getline(file, str))
+		{
+			if (str.empty())
+			{
+				break;
+			}
+
+			std::vector<std::string> strs;
+			boost::split(strs, str, boost::is_any_of("\t "));
+
+			if (strs.size() >= 2)
+			{
+				materialProperties[mat].emplace(strs[0], strs[1]);
+			}
+		}
+		mat++;
+	}
+
 	for (unsigned int i = 0; i < _meshes.size(); i++)
 	{
 		int numVertices = _meshes[i].vertexData.size();
@@ -197,7 +207,7 @@ AI_MATKEY_TWOSIDED "$mat.twosided",0,0
 			std::vector<MaterialProperty> properties;
 
 			std::map<std::string, std::string>::iterator iter;
-			for (iter = materialProperties.begin(); iter != materialProperties.end(); iter++)
+			for (iter = materialProperties[i].begin(); iter != materialProperties[i].end(); iter++)
 			{
 				float floatValue = 0.0;
 				aiColor3D vec3Value = aiColor3D(0, 0, 0);
@@ -378,6 +388,8 @@ MeshExporter::Mesh MeshExporter::processMesh(aiMesh *mesh, const aiScene *scene,
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 
+	static bool printed = false;
+
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
 		Vertex vertex;
@@ -388,6 +400,10 @@ MeshExporter::Mesh MeshExporter::processMesh(aiMesh *mesh, const aiScene *scene,
 			vertex.position.x = mesh->mVertices[i].x;
 			vertex.position.y = mesh->mVertices[i].y;
 			vertex.position.z = mesh->mVertices[i].z;
+			if (!printed)
+			{
+				std::cout << "has attribute position" << std::endl;
+			}
 		}
 
 		if (mesh->HasNormals())
@@ -396,6 +412,10 @@ MeshExporter::Mesh MeshExporter::processMesh(aiMesh *mesh, const aiScene *scene,
 			vertex.normal.x = mesh->mNormals[i].x;
 			vertex.normal.y = mesh->mNormals[i].y;
 			vertex.normal.z = mesh->mNormals[i].z;
+			if (!printed)
+			{
+				std::cout << "has attribute normal" << std::endl;
+			}
 		}
 
 		if (mesh->HasVertexColors(0))//increase color attribute number???
@@ -405,6 +425,11 @@ MeshExporter::Mesh MeshExporter::processMesh(aiMesh *mesh, const aiScene *scene,
 			vertex.color.y = mesh->mColors[0][i].g;
 			vertex.color.z = mesh->mColors[0][i].b;
 			vertex.color.w = mesh->mColors[0][i].a;
+
+			if (!printed)
+			{
+				std::cout << "has attribute color" << std::endl;
+			}
 		}
 
 		if (mesh->HasTangentsAndBitangents())
@@ -418,6 +443,11 @@ MeshExporter::Mesh MeshExporter::processMesh(aiMesh *mesh, const aiScene *scene,
 			vertex.binormal.x = mesh->mBitangents[i].x;
 			vertex.binormal.y = mesh->mBitangents[i].y;
 			vertex.binormal.z = mesh->mBitangents[i].z;
+
+			if (!printed)
+			{
+				std::cout << "has attributes tangent and bitangent" << std::endl;
+			}
 		}
 
 		for (unsigned int j = 0; j < MAX_TEXCOORDS; j++)
@@ -427,9 +457,17 @@ MeshExporter::Mesh MeshExporter::processMesh(aiMesh *mesh, const aiScene *scene,
 				vertex.format.hasTexCoords[j] = true;
 				vertex.texCoords[j].x = mesh->mTextureCoords[j][i].x;
 				vertex.texCoords[j].y = mesh->mTextureCoords[j][i].y;
+
+				if (!printed)
+				{
+					std::cout << "has attribute texcoord: " << j << std::endl;
+				}
 			}
 		}
 		vertices.push_back(vertex);
+
+		//print test
+		printed = true;
 	}
 
 	if (mesh->HasFaces())

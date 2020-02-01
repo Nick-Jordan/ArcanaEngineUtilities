@@ -16,9 +16,9 @@ int main(int argc, char* argv[])
 		std::cout << "material_spec.txt - Specifies what material properties should be exported" << std::endl;
 	}
 
-	const char* inFile = "textured_cube.obj";//argv[0];
-	const char* outFile = "textured_cube.mesh";//argv[1];
-	bool writeMaterials = strcmp("true", "true") == 0;//argv[2];
+	const char* inFile = "two_cubes.obj";//argv[0];
+	const char* outFile = "two_cubes.mesh";//argv[1];
+	bool writeMaterials = true;// strcmp("false", "true") == 0;//argv[2];
 	const char* materialSpec = "default.txt";//argv[3]
 
 	MeshExporter exporter;

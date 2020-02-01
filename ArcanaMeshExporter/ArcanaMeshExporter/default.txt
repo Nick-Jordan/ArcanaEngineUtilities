@@ -1,3 +1,7 @@
-texture_diffuse baseColor
+texture_diffuse baseColor  //texture_diffuse
+$mat.refracti roughness
+$mat.opacity metallic
+
+$clr.diffuse baseColor
 $mat.refracti roughness
 $mat.opacity metallic
